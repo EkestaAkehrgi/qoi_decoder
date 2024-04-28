@@ -179,7 +179,7 @@ int main(){
         }
     }
 
-    stbi_write_bmp("output.bmp",imgWidth, imgHeight, channel, buffer.data());
+    stbi_write_bmp("output.bmp",imgWidth, imgHeight, channel, image.data());
     return 0;                               
 }
 
