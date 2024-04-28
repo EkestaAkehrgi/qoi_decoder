@@ -35,13 +35,19 @@ typedef struct rgba
 } colour;
 
 void insertIntoSeenData(colour *array, const colour val);
+uint32_t read4byte(std::vector<uint8_t>& buffer, int& bufferIndex){
 
+    return (buffer[bufferIndex++] << 24) |
+           (buffer[bufferIndex++] << 16) |
+           (buffer[bufferIndex++] << 8) |
+           (buffer[bufferIndex++]);
+}
 int main()
 {
     const int qoiHeader = 14;
     const int lastInd = 8;
 
-    std::string filePath = "../assets/qoi_test_images/wikipedia_008.qoi";
+    std::string filePath = "../assets/qoi_test_images/kodim10.qoi";
     std::ifstream file(filePath, std::ios::binary);
     if (!file)
     {
@@ -82,11 +88,7 @@ int main()
                                    ((unsigned int)'i') << 8 |
                                    ((unsigned int)'f');
 
-    uint32_t aux =
-        (buffer[bufferIndex++] << 24) |
-        (buffer[bufferIndex++] << 16) |
-        (buffer[bufferIndex++] << 8) |
-        (buffer[bufferIndex++]);
+    uint32_t aux = read4byte(buffer, bufferIndex);
 
     if (aux != MAGIC_NUM)
     {
@@ -97,24 +99,16 @@ int main()
     colour prevPixel{0, 0, 0, 255};
     colour seenData[64]{};
 
-    uint32_t imgWidth =
-        (buffer[bufferIndex++] << 24) |
-        (buffer[bufferIndex++] << 16) |
-        (buffer[bufferIndex++] << 8) |
-        (buffer[bufferIndex++]);
+    uint32_t imgWidth = read4byte(buffer, bufferIndex);
 
-    uint32_t imgHeight =
-        (buffer[bufferIndex++] << 24) |
-        (buffer[bufferIndex++] << 16) |
-        (buffer[bufferIndex++] << 8) |
-        (buffer[bufferIndex++]);
+    uint32_t imgHeight = read4byte(buffer, bufferIndex);
 
     int channel = buffer[bufferIndex++];
     int clrspace = buffer[bufferIndex++];
 
     const int imgSize = imgHeight * imgWidth * channel;
     std::vector<uint8_t> image(imgSize);
-    std::cout << "img size->" << imgSize << "\nimg Height->"<< imgHeight<<"\nimgWidth" << imgWidth << "\nimg channel->" << channel << "\n";
+
 
     int imgIndex{};
 
@@ -173,7 +167,7 @@ int main()
                 prevPixel.b = aux.b;
                 prevPixel.a = aux.a;
             }
-            if ((byte & TAG_MASK) == TAG_DIFF)
+            else if ((byte & TAG_MASK) == TAG_DIFF)
             {
 
                 int red = ((byte & DIFF_RED) >> 4) - 2;
@@ -184,7 +178,7 @@ int main()
                 prevPixel.g = prevPixel.g + green;
                 prevPixel.b = prevPixel.b + blue;
             }
-            if ((byte & TAG_MASK) == TAG_LUMA)
+            else if ((byte & TAG_MASK) == TAG_LUMA)
             {
 
                 int dg = (byte & LUMA_GREEN) - 32;
@@ -216,7 +210,6 @@ int main()
             image[imgIndex++] = prevPixel.b;
         }
     }
-    std::cout << "image size " << imgSize << " Image index" << imgIndex;
     stbi_write_bmp("output.bmp", imgWidth, imgHeight, channel, image.data());
     return 0;
 }
