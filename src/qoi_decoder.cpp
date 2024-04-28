@@ -34,7 +34,13 @@ typedef struct rgba
     uint8_t a;
 } colour;
 
-void insertIntoSeenData(colour *array, const colour val);
+void insertIntoSeenData(colour *array, const colour val)
+{
+
+    int index_position = (val.r * 3 + val.g * 5 + val.b * 7 + val.a * 11) % 64;
+    array[index_position] = val;
+}
+
 uint32_t read4byte(std::vector<uint8_t>& buffer, int& bufferIndex){
 
     return (buffer[bufferIndex++] << 24) |
@@ -212,13 +218,4 @@ int main()
     }
     stbi_write_bmp("output.bmp", imgWidth, imgHeight, channel, image.data());
     return 0;
-}
-
-/* Function Definitions */
-
-void insertIntoSeenData(colour *array, const colour val)
-{
-
-    int index_position = (val.r * 3 + val.g * 5 + val.b * 7 + val.a * 11) % 64;
-    array[index_position] = val;
 }
