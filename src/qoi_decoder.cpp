@@ -194,7 +194,7 @@ int main()
                 int dbdg = ((nextByte & LUMA_DIFF_B) >> 0) - 8;
 
                 int dr = drdg + dg;
-                int db = dbdg + db;
+                int db = dbdg + dg;
 
                 prevPixel.r = prevPixel.r + dr;
                 prevPixel.g = prevPixel.g + dg;
